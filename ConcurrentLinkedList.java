@@ -1,13 +1,35 @@
 import java.util.*;
+import java.util.concurrent.*;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicMarkableReference;
 
-public class ConcurrentLinkedList 
+public class ConcurrentLinkedList
 {
-	private class Node
+	class Node
 	{
-		T item;
+		Integer item;
 		int key;
-		Node next;
+		AtomicMarkableReference<Node> next;
+
+
+		public Node(Integer item)
+		{
+			this.item = item;
+			this.key = item.hashCode();
+			this.next = new AtomicMarkableReference<Node>(null, false);
+		}
+
+		public Node(int key, Node next)
+		{
+			this.item = null;
+			this.key = key;
+			this.next = new AtomicMarkableReference<Node>(null, false);
+		}
+
 	}
+
+	Node head;
 
 	class Window 
 	{
@@ -17,33 +39,18 @@ public class ConcurrentLinkedList
 			pred = myPred; curr = myCurr;
 		}
 	}
-
-	public boolean compareAndSet(
-		T expectedReference,
-		T newReference,
-		boolean expectedMark,
-		boolean newMark);
-	)
-	{
-		;
-	}
-
-	public boolean attemptMark(T expectedReference, boolean newMark)
-	{
-		;
-	}
-
-	public T get(boolean[] marked)
-	{
-		;
-	}
-
-	public boolean attemptMark(T expectedReference,
- 	boolean newMark);
-
-
-	public T get(boolean[] marked);
 	
+
+	public ConcurrentLinkedList()
+	{
+
+		Node tail = new Node(Integer.MAX_VALUE, null);
+		head = new Node(Integer.MIN_VALUE, tail);
+
+		while (!head.next.compareAndSet(null, tail, false, false));
+	}
+
+		 
 	public Window find(Node head, int key) 
 	{
 		Node pred = null, curr = null, succ = null;
@@ -72,9 +79,8 @@ public class ConcurrentLinkedList
 		}
 	}
 
-	1
 
-	public boolean add(T item) 
+	public boolean add(Integer item) 
 	{
 		int key = item.hashCode();
 		while (true) 
@@ -88,7 +94,7 @@ public class ConcurrentLinkedList
 			else 
 			{
 				Node node = new Node(item);
-				node.next = new AtomicMarkableReference(curr, false);
+				node.next = new AtomicMarkableReference<Node>(curr, false);
 				if (pred.next.compareAndSet(curr, node, false, false)) 
 				{
 					return true;
@@ -97,9 +103,9 @@ public class ConcurrentLinkedList
  		}
  	}
 
-	 17
+	 
 
-	public boolean remove(T item) 
+	public boolean remove(Integer item) 
 	{
 		int key = item.hashCode();
 		boolean snip;
@@ -123,6 +129,15 @@ public class ConcurrentLinkedList
 				return true;
 			}
 		}
+	}
+
+	public boolean contains(Integer item) 
+	{
+		int key = item.hashCode();
+		Window window = find(head, key);
+		Node pred = window.pred, curr = window.curr;
+
+		return (curr.key == key);
 	}
 
 	public static void main(String [] args)
