@@ -26,6 +26,8 @@ java Party
 Problem 2 was left mostly unfinished, I'll sketch out my attempted solution, but the code
 ultimately does NOT work beyond multiple threads generating random temperatures.
 
+It will not compile because i
+
 
 ## Solution Sketches
 
@@ -45,4 +47,9 @@ by the minotaur.
 
 
 ### Problem 2
-
+Utilizes almost the same LL as problem 1, with a few attempted modifications.
+Under a nested loop, outer loop cycles between minutes in an hour (each iteration of the loop is another
+minute). Inner for loop inside the TemperatureThread class is supposed to hit
+a CyclicBarrier every 10 iterations. With this, the threads wait for each other
+to get to the same area before calling an unfinished function that would have
+calculated the 10 minute intervals.
