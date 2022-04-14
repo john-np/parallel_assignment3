@@ -30,6 +30,7 @@ public class ConcurrentLinkedList
 	}
 
 	Node head;
+	AtomicInteger noteCount;
 
 	class Window 
 	{
@@ -46,10 +47,15 @@ public class ConcurrentLinkedList
 
 		Node tail = new Node(Integer.MAX_VALUE, null);
 		head = new Node(Integer.MIN_VALUE, tail);
+		noteCount = new AtomicInteger(0);
 
 		while (!head.next.compareAndSet(null, tail, false, false));
 	}
 
+	public int getNoteCount()
+	{
+		return noteCount.get();
+	}
 		 
 	public Window find(Node head, int key) 
 	{
@@ -126,6 +132,7 @@ public class ConcurrentLinkedList
 				if (!snip)
 					continue;
 				pred.next.compareAndSet(curr, succ, false, false);
+				noteCount.incrementAndGet();
 				return true;
 			}
 		}

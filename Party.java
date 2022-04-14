@@ -12,13 +12,13 @@ public class Party
 	public static int NUM_SERVANTS = 4;
 	
 	// Number of presents from guests
-	public static int NUM_PRESENTS = 5000;
+	public static int NUM_PRESENTS = 500000;
 
 	public static BlockingQueue<Integer> bag;
 
 	public static ConcurrentLinkedList presentChain;
 
-	public static AtomicInteger noteCount;
+	public static AtomicInteger noteCount ;
 
 	public static Random rand;
 
@@ -26,16 +26,19 @@ public class Party
 	{
 		
 		bag = new ArrayBlockingQueue<Integer>(NUM_PRESENTS, false);
-		
+				
 		presentChain = new ConcurrentLinkedList();
 		
 		fillBag();
 
-		noteCount = new AtomicInteger(0);
 
 		rand = new Random();
 
+		final long startTime = System.currentTimeMillis();
 		multiThreadHelp();
+		final long endTime = System.currentTimeMillis();
+		System.out.println("It took: " + (endTime - startTime) + " ms to finish");
+		System.out.println("There are " + presentChain.getNoteCount() + " thank-you notes");
 
 	}
 
@@ -59,6 +62,7 @@ public class Party
 
 			}
 		}
+		// System.out.println(bag.size());
 	}
 
 	public static void multiThreadHelp()
@@ -83,39 +87,44 @@ public class Party
 		}
 		catch (Exception e)
 		{
-
+			System.err.println("Error with one of the threads");
 		}
 	}
 
 
-static class PartyThread extends Thread {
-	private int threadNumber;
-
-	@Override
-	public void run() 
+	static class PartyThread extends Thread 
 	{
-		while (noteCount.get() < NUM_PRESENTS) 
-		{
-			int randNum = rand.nextInt(2) + 1;
+		private int threadNumber;
 
-			int res = rand.nextInt(2);
-			Integer present = bag.poll();
-			if (present == null)
-				return;
+		@Override
+		public void run() 
+		{
+			while (presentChain.getNoteCount() < NUM_PRESENTS) 
+			{
+				int randNum = rand.nextInt(2) + 1;
+
+				int res = rand.nextInt(2);
 				
-			if (res == 0) 
-			{
-				if (presentChain.add(present))
-					// System.out.println("Added " + present + " to the list");
-				if (presentChain.remove(present))
-					// System.out.println("Removed " + present + " from the list");
-				noteCount.incrementAndGet();
-			} else 
-			{
-				if (presentChain.contains(present))
-					System.out.println(present + " is in the list");
+				if (res == 0)
+				{
+					int presentToFind = rand.nextInt(NUM_PRESENTS);
+					if (presentChain.contains(presentToFind))
+					System.out.println(presentToFind + " is in the list");
+				}
+				else 
+				{
+					Integer present = bag.poll();
+					if (present == null)
+						return;
+
+					if (presentChain.add(present)) ;
+						// System.out.println("Added " + present + " to the list");
+
+					if (presentChain.remove(present)) ;
+						// System.out.println("Removed " + present + " from the list");
+				} 
 			}
 		}
 	}
-}
+
 }
