@@ -22,10 +22,11 @@ public class Party
 
 	public static Random rand;
 
+	// Toggle this to true to enable print checking
+	public static boolean printToggle = false;
+
 	public static void main(String[] args)
 	{
-		
-		bag = new ArrayBlockingQueue<Integer>(NUM_PRESENTS, false);
 				
 		presentChain = new ConcurrentLinkedList();
 		
@@ -42,19 +43,14 @@ public class Party
 
 	}
 
-	public void run()
-	{
-		;
-	}
-
-
 	public static void fillBag()
 	{
+		ArrayList<Integer> tempList = new ArrayList<>(NUM_PRESENTS);
 		for (int i = 0; i < NUM_PRESENTS; i++)
 		{
 			try
 			{
-				bag.add(Integer.valueOf(i));
+				tempList.add(Integer.valueOf(i));
 
 			}
 			catch (Exception e)
@@ -63,6 +59,8 @@ public class Party
 			}
 		}
 		// System.out.println(bag.size());
+		Collections.shuffle(tempList);
+		bag = new ArrayBlockingQueue<Integer>(NUM_PRESENTS, false, tempList);
 	}
 
 	public static void multiThreadHelp()
@@ -94,8 +92,6 @@ public class Party
 
 	static class PartyThread extends Thread 
 	{
-		private int threadNumber;
-
 		@Override
 		public void run() 
 		{
@@ -107,9 +103,10 @@ public class Party
 				
 				if (res == 0)
 				{
+					// System.out.println("Calling contains");
 					int presentToFind = rand.nextInt(NUM_PRESENTS);
-					if (presentChain.contains(presentToFind))
-					System.out.println(presentToFind + " is in the list");
+					if (presentChain.contains(presentToFind) && printToggle)
+						System.out.println(presentToFind + " is in the list");
 				}
 				else 
 				{
@@ -117,11 +114,11 @@ public class Party
 					if (present == null)
 						return;
 
-					if (presentChain.add(present)) ;
-						// System.out.println("Added " + present + " to the list");
+					if (presentChain.add(present) && printToggle) 
+						System.out.println("Added " + present + " to the list");
 
-					if (presentChain.remove(present)) ;
-						// System.out.println("Removed " + present + " from the list");
+					if (presentChain.remove(present) && printToggle) 
+						System.out.println("Removed " + present + " from the list");
 				} 
 			}
 		}
